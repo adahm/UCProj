@@ -9,6 +9,7 @@ import android.os.Debug;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
@@ -19,6 +20,14 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private ImageView compassImage;
     private SensorManager sensorManager;
     private float degree = 0f;
+
+    private final float[] mAccelerometerReading = new float[3];
+    private final float[] mMagnetometerReading = new float[3];
+
+    private final float[] mRotationMatrix = new float[9];
+    private final float[] mOrientationAngles = new float[3];
+
+    private float pitch = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +56,35 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     }
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        float degreeChange =  Math.round(sensorEvent.values[0]);
-        RotateAnimation r = new RotateAnimation( degree,
-        degreeChange,
-        int pivotXType,
-        float pivotXValue,
-        int pivotYType,
-        float pivotYValue)
-        sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(sensorEvent.values, 0, mAccelerometerReading,
+                    0, mAccelerometerReading.length);
+        }
+        else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(sensorEvent.values, 0, mMagnetometerReading,
+                    0, mMagnetometerReading.length);
+        }
 
-
+        updateCompassRotation();
     }
 
+    public void updateCompassRotation() {
+        sensorManager.getRotationMatrix(mRotationMatrix, null,
+                mAccelerometerReading, mMagnetometerReading);
+        sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+
+        float degreeChange =  Math.round(mOrientationAngles[0]);
+
+        RotateAnimation r = new RotateAnimation( 0,
+            -degreeChange,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f);
+        r.setDuration(300);
+        compassImage.startAnimation(r);
+        degree = degree - degreeChange;
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {

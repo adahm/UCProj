@@ -14,10 +14,10 @@
         android:layout_marginEnd="75dp"
         android:layout_marginStart="74dp"
         android:layout_marginTop="112dp"
-        android:src="@drawable/Compass_rose"
+        android:src="@drawable/compass_rose"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Compass" />
+        android:contentDescription="compass" />
 </android.support.constraint.ConstraintLayout>
