@@ -8,16 +8,44 @@
 
     <ImageView
         android:id="@+id/compass"
-        android:layout_width="452dp"
-        android:layout_height="436dp"
-        android:layout_marginBottom="278dp"
-        android:layout_marginEnd="75dp"
-        android:layout_marginStart="74dp"
-        android:layout_marginTop="112dp"
+        android:layout_width="322dp"
+        android:layout_height="320dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="19dp"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="9dp"
+        android:contentDescription="compass"
         android:src="@drawable/compass_rose"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="compass" />
+        app:layout_constraintTop_toBottomOf="@+id/blackline" />
+
+    <ImageView
+        android:id="@+id/blackline"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="9dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="6dp"
+        android:src="@drawable/blackline"
+        app:layout_constraintBottom_toTopOf="@+id/compass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/dottedline"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="6dp"
+        android:src="@drawable/dottedline"
+        app:layout_constraintBottom_toTopOf="@+id/compass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
