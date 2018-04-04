@@ -29,6 +29,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
     private float pitch = 0f;
 
+    private int interval = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +46,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);
 
     }
 
@@ -55,7 +57,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.unregisterListener(this);
     }
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public synchronized void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             System.arraycopy(sensorEvent.values, 0, mAccelerometerReading,
                     0, mAccelerometerReading.length);
@@ -66,6 +68,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         }
 
         updateCompassRotation();
+
     }
 
     public void updateCompassRotation() {
@@ -74,16 +77,23 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
 
         float degreeChange =  Math.round(mOrientationAngles[0]);
+        degreeChange = (float) Math.toDegrees(degreeChange);
+        degreeChange = degreeChange + 360 % 360;
+ //       Log.i("i", "Azimuth " + degreeChange);
+ //       if (degree != -degreeChange && degree != degreeChange) {
+            Log.i("i", "Animation from " + degree + " to "+ (-degreeChange));
+            RotateAnimation r = new RotateAnimation(degree,
+                    -degreeChange,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+            r.setDuration(50);
 
-        RotateAnimation r = new RotateAnimation( 0,
-            -degreeChange,
-            Animation.RELATIVE_TO_SELF,
-            0.5f,
-            Animation.RELATIVE_TO_SELF,
-            0.5f);
-        r.setDuration(300);
-        compassImage.startAnimation(r);
-        degree = degree - degreeChange;
+            compassImage.startAnimation(r);
+            degree = -degreeChange;
+   //     }
+
     }
 
     @Override
