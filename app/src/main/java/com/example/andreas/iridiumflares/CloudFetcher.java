@@ -21,9 +21,9 @@ public class CloudFetcher {
         this.latitude = latitude;
     }
 
-    public ArrayList<Flares> cloudCheck(ArrayList<Flares> flareList){
-        private String metObsAPI = "https://opendata-download-metobs.smhi.se/api";
-        JSONObject parameterObject = readJsonFromUrl(metObsAPI + "/version/latest/geotype/point/lon/{"+ longitude+"/lat/"+latitude+"/data.json";
+    public void cloudCheck(ArrayList<Flares> flareList) throws IOException, JSONException {
+        String metObsAPI = "https://opendata-download-metobs.smhi.se/api";
+        JSONObject parameterObject = readJsonFromUrl(metObsAPI + "/version/latest/geotype/point/lon/{"+ longitude+"/lat/"+latitude+"/data.json");
 
         for (Flares f: flareList) {
 
@@ -33,6 +33,7 @@ public class CloudFetcher {
     public Boolean checkFlare(Flares f){
         //TODO gör en jsonarry som går över timeseries
         //
+        return true;
 
     }
     private JSONObject readJsonFromUrl(String url) throws IOException, JSONException {

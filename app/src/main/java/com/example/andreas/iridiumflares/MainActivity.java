@@ -17,6 +17,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+
 public class MainActivity extends Activity {
 
     // Declaring a Location Manager
@@ -81,6 +84,15 @@ public class MainActivity extends Activity {
         double currentLongitude = currentLocation.getLongitude();
         Log.i("i", "Longitude: " + currentLongitude + " Latitude: " + currentLatitude);
 
+
+        FlaresFetcher flareFetcher = new FlaresFetcher(currentLongitude, currentLatitude);
+        try {
+            flareFetcher.fetchData();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         String[] myStringArray = {"test"};
         ListView FlareList = findViewById(R.id.list);
