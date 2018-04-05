@@ -79,7 +79,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.getRotationMatrix(mRotationMatrix,I,
                 mAccelerometerReading, mMagnetometerReading);
         sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
-
+        if(mAccelerometerReading[2]<0) //make sure that we can detect if the phone rotates over it´s x axis
+            mOrientationAngles[1] = (float) (Math.PI - mOrientationAngles[1]);
         float degreeChange =  mOrientationAngles[0];
 
 
@@ -106,7 +107,9 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         float pitchChange = mOrientationAngles[1];
 
         pitchChange = (float) Math.toDegrees(pitchChange);
-
+        if (pitchChange < 0.0f) {
+            pitchChange += 360f;
+        }
         pitchChange = Math.round(pitchChange);
         RotateAnimation lineRot = new RotateAnimation(pitch,
                 pitchChange,
