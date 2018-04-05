@@ -2,6 +2,7 @@ package com.example.andreas.iridiumflares;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 //import android.support.v7.app.AppCompatActivity;
 import android.content.pm.PackageManager;
@@ -27,7 +28,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 1);
@@ -42,7 +44,39 @@ public class MainActivity extends Activity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                return;
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+        };
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
         Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        while (currentLocation == null){
+            Log.i("i", "No location found yet");
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+        mLocationManager.removeUpdates(locationListener);
         double currentLatitude = currentLocation.getLatitude();
         double currentLongitude = currentLocation.getLongitude();
         Log.i("i", "Longitude: " + currentLongitude + " Latitude: " + currentLatitude);
