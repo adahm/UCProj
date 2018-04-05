@@ -18,6 +18,7 @@ import junit.framework.Assert;
 public class CompassActivity extends AppCompatActivity implements SensorEventListener{
 
     private ImageView compassImage;
+    private ImageView blackelineImage;
     private SensorManager sensorManager;
     private float degree = 0f;
 
@@ -41,7 +42,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         String angle = i.getStringExtra("Angle");
         Log.i("R",angle);
         compassImage = findViewById(R.id.compass); //TODO add watermark
-
+        blackelineImage = findViewById(R.id.blackline);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 
@@ -80,6 +81,9 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
 
         float degreeChange =  mOrientationAngles[0];
+
+
+
         degreeChange = (float) Math.toDegrees(degreeChange);
 
         if (degreeChange < 0.0f) {
@@ -93,12 +97,26 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
                     0.5f,
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
-            r.setDuration(210);
+            r.setDuration(230);
 
             compassImage.startAnimation(r);
             degree = -degreeChange;
 
+        //change angle of the vertical line
+        float pitchChange = mOrientationAngles[1];
 
+        pitchChange = (float) Math.toDegrees(pitchChange);
+
+        pitchChange = Math.round(pitchChange);
+        RotateAnimation lineRot = new RotateAnimation(pitch,
+                pitchChange,
+                Animation.RELATIVE_TO_SELF,
+                0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f);
+        lineRot.setDuration(230);
+        blackelineImage.startAnimation(lineRot);
+        pitch = pitchChange;
     }
 
     @Override
