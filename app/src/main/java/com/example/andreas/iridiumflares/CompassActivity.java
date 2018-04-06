@@ -1,6 +1,11 @@
 package com.example.andreas.iridiumflares;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -45,8 +50,10 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         compassImage = findViewById(R.id.compass); //TODO add watermark
         blackelineImage = findViewById(R.id.blackline);
         dottedlineImage = findViewById(R.id.dottedline);
+        addStarToCompass();
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
     }
 
     @Override
@@ -59,14 +66,46 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         if (hasFocus) {
-            // Rotation of altitude indicator
-            float altitudeAngle = 45;
-            dottedlineImage.setRotationX(dottedlineImage.getX()/2);
-            dottedlineImage.setRotationY(dottedlineImage.getY()/2);
-            dottedlineImage.setRotation(altitudeAngle);
+            rotateAltitudeIndicator();
+
         }
 
 
+    }
+
+    public void rotateAltitudeIndicator(){
+        float altitudeAngle = 20;
+        dottedlineImage.setRotationX(dottedlineImage.getX()/2);
+        dottedlineImage.setRotationY(dottedlineImage.getY()/2);
+        dottedlineImage.setRotation(altitudeAngle);
+    }
+
+    public void addStarToCompass(){
+        Drawable compassClone = compassImage.getDrawable();
+        Bitmap compassBitmap = ((BitmapDrawable)compassClone).getBitmap();
+
+        int w = compassBitmap.getWidth();
+        int h = compassBitmap.getHeight();
+        Bitmap result = Bitmap.createBitmap(w, h, compassBitmap.getConfig());
+        float targetAzimuth = 0f;
+
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(compassBitmap, 0, 0, null);
+
+        Paint paint = new Paint();
+        paint.setColor(100);
+        paint.setAlpha(100);
+        paint.setTextSize(255);
+        paint.setAntiAlias(true);
+        paint.setUnderlineText(false);
+
+        double locationX = ((w/2)*0.75)*Math.cos(Math.toDegrees(targetAzimuth))+w/2;
+        double locationY = ((w/2)*0.75)*Math.sin(Math.toDegrees(targetAzimuth))+h/2;
+
+        canvas.drawText("*", (float)locationX, (float)locationY, paint);
+        compassImage.setImageBitmap(result);
+        Log.i("Drawing", "drawing done and replaced at location x: " + String.valueOf(locationX) + ", y: " + String.valueOf(locationY));
+        Log.i("Drawing", "Size of image: " + String.valueOf(w) + ", by " + String.valueOf(h));
     }
 
     @Override
