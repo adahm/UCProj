@@ -19,6 +19,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
     private ImageView compassImage;
     private ImageView blackelineImage;
+    private ImageView dottedlineImage;
     private SensorManager sensorManager;
     private float degree = 0f;
 
@@ -43,6 +44,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         Log.i("R",angle);
         compassImage = findViewById(R.id.compass); //TODO add watermark
         blackelineImage = findViewById(R.id.blackline);
+        dottedlineImage = findViewById(R.id.dottedline);
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 
@@ -51,6 +54,18 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         super.onResume();
         sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            // Rotation of altitude indicator
+            float altitudeAngle = 45;
+            dottedlineImage.setRotationX(dottedlineImage.getX()/2);
+            dottedlineImage.setRotationY(dottedlineImage.getY()/2);
+            dottedlineImage.setRotation(altitudeAngle);
+        }
+
 
     }
 

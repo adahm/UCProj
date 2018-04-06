@@ -89,15 +89,6 @@ public class MainActivity extends Activity {
 
 
         FlaresFetcher flareFetcher = new FlaresFetcher(currentLongitude, currentLatitude);
-        /*
-        try {
-            ForkJoinPool.commonPool().execute(() ->
-            flareFetcher.fetchData());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } */
 
         new AsyncTask<Void, Void, ArrayList<Flares>>() {
             @Override
