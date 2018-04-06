@@ -1,9 +1,13 @@
 package com.example.andreas.iridiumflares;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +20,19 @@ public class FlaresFetcher {
     double latitude;
     ArrayList<Flares> flareList;
 
+    /*
+    public static void main(String[] args) {
+        double lon = 18.0686;
+        double lat = 59.3293;
+        FlaresFetcher myFetcher = new FlaresFetcher(lon, lat);
+
+        try {
+            myFetcher.fetchData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } */
+
     public FlaresFetcher(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
@@ -24,7 +41,7 @@ public class FlaresFetcher {
 
     }
 
-    public void fetchData() throws IOException {
+    public ArrayList fetchData(Context context) throws IOException {
         // Generate URL for fetching data:
 
         String latitudeString = String.valueOf(latitude);
@@ -32,29 +49,34 @@ public class FlaresFetcher {
         String longitudeString = String.valueOf(longitude);
         longitudeString = longitudeString.substring(0, 6);
 
-        URL link = new URL("http://www.heavens-above.com/IridiumFlares.aspx?lat=" + latitudeString + "&lng=" + longitudeString);
-
+        URL link = new URL("http://www.heavens-above.com/localhtml.aspx?lat=" + latitudeString + "&lng=" + longitudeString);
+        File file = new File("localhtml.html");
         Log.i("Fetcher", "URL: " + link.toString());
-        BufferedReader in = new BufferedReader(new InputStreamReader(link.openStream(), Charset.forName("UTF-8")));
-        Log.i("Fetcher", "progress?");
-        String inputLine, azimuth, altitude, date;
-        int dateEnd, azimuthEnd, altitudeEnd;
 
+
+        Log.i("Fetcher", "File trying to read from path: " + file.getAbsolutePath());
+
+
+        // Use local file to read from rather than fetch data online
+//      BufferedReader in = new BufferedReader(new InputStreamReader(link.openStream(), Charset.forName("UTF-8")));
+        BufferedReader in = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.localhtml)));
+        Log.i("Fetcher", "progress?");
+        String inputLine, azimuth, altitude, date, response;
+        int dateEnd, azimuthEnd, altitudeEnd;
+        response = "Response: \n";
         inputLine = in.readLine();
+
 
         // Go fwd to table:
         while (!inputLine.contains("flaredetails.aspx") && in.ready())
         {
-            try {
-                inputLine = in.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            inputLine = in.readLine();
+//            Log.i("Scraper: ", inputLine);
         }
 
        // Flares tempFlare = new Flares(1, 1);
         // Iterate over line until empty
-        while (inputLine.length() > 5) {
+        while (inputLine.length() > 1) {
 
             // Trim data to date:
             inputLine = inputLine.substring(inputLine.indexOf("<td>")+4, inputLine.length());
@@ -81,16 +103,18 @@ public class FlaresFetcher {
             inputLine = inputLine.substring(inputLine.indexOf(">")+1, inputLine.length());
 
             // Read Azimuth
-            azimuthEnd = inputLine.indexOf("°")-1;
+            azimuthEnd = inputLine.indexOf("°");
             azimuth = inputLine.substring(0, azimuthEnd);
 
             // Trim to end of row
             inputLine = inputLine.substring(inputLine.indexOf("</tr>")+5, inputLine.length());
 
-            Log.i("Scraper", "Date: " + date + "; Azimuth: " + azimuth + "; Altitude: " + altitude);
+            response += "Date: " + date + "; Azimuth: " + azimuth + "; Altitude: " + altitude + "\n";
 
+            flareList.add(new Flares(date, azimuth, altitude));
             // CREATE AND STORE FLARE INSTANCE HERE
         }
+        return flareList;
     }
 }
 /*

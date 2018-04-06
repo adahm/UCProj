@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -19,6 +20,8 @@ import android.widget.ListView;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.concurrent.ForkJoinPool;
 
 public class MainActivity extends Activity {
 
@@ -86,13 +89,37 @@ public class MainActivity extends Activity {
 
 
         FlaresFetcher flareFetcher = new FlaresFetcher(currentLongitude, currentLatitude);
+        /*
         try {
-            flareFetcher.fetchData();
+            ForkJoinPool.commonPool().execute(() ->
+            flareFetcher.fetchData());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } */
+
+        new AsyncTask<Void, Void, ArrayList<Flares>>() {
+            @Override
+            protected ArrayList<Flares> doInBackground(Void... params) {
+                ArrayList<Flares> response = new ArrayList<Flares>();
+                try {
+                    response  = flareFetcher.fetchData(getApplicationContext());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return response;
+            }
+
+            @Override
+            protected void onPostExecute(ArrayList<Flares> response) {
+
+                for(Flares f : response) Log.i("Fetcher", "Entry: " + f.toString());
+                // Do whatever you want to do with the network response
+            }
+        }.execute();
+
 
         String[] myStringArray = {"test"};
         ListView FlareList = findViewById(R.id.list);
