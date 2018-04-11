@@ -14,6 +14,7 @@ import android.os.Debug;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -87,24 +88,29 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         int w = compassBitmap.getWidth();
         int h = compassBitmap.getHeight();
         Bitmap result = Bitmap.createBitmap(w, h, compassBitmap.getConfig());
-        float targetAzimuth = 0f;
+        float targetAzimuth = 315f;
 
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(compassBitmap, 0, 0, null);
+        // Scale Text to be 10% of image
+        int textSizeTarget = h/10;
 
         Paint paint = new Paint();
         paint.setColor(100);
         paint.setAlpha(100);
-        paint.setTextSize(255);
+        paint.setTextSize(textSizeTarget);
         paint.setAntiAlias(true);
         paint.setUnderlineText(false);
 
-        double locationX = ((w/2)*0.75)*Math.cos(Math.toDegrees(targetAzimuth))+w/2;
-        double locationY = ((w/2)*0.75)*Math.sin(Math.toDegrees(targetAzimuth))+h/2;
+        double locationX = ((((w/2)*0.75)*Math.cos(Math.toRadians(targetAzimuth)))+(w/2)-(textSizeTarget/4));
+        double locationY = h-(((h/2)*0.75)*Math.sin(Math.toRadians(targetAzimuth))+(h/2)-(textSizeTarget/2));
+
+        Log.i("Drawing", "sin value: " + (Math.sin(Math.toRadians(targetAzimuth))) +
+                ", cos value: " + Math.cos(Math.toRadians(targetAzimuth)));
 
         canvas.drawText("*", (float)locationX, (float)locationY, paint);
         compassImage.setImageBitmap(result);
-        Log.i("Drawing", "drawing done and replaced at location x: " + String.valueOf(locationX) + ", y: " + String.valueOf(locationY));
+        Log.i("Drawing", "drawing done and drawing * at location x: " + String.valueOf(locationX) + ", y: " + String.valueOf(locationY));
         Log.i("Drawing", "Size of image: " + String.valueOf(w) + ", by " + String.valueOf(h));
     }
 
