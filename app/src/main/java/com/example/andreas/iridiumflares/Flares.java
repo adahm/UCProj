@@ -26,10 +26,13 @@ public class Flares {
     }
 
     public Date parseDate(String dateString){
-        SimpleDateFormat format = new SimpleDateFormat("MMM d, H:m:s");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MMM d, H:m:s");
         try {
-            Log.i("Parsing", dateString);
-            return format.parse(dateString);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+            String year = sdf.format(new Date());
+
+            Log.i("Parsing", year+ " " +dateString);
+            return format.parse(year+ " "+dateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }
