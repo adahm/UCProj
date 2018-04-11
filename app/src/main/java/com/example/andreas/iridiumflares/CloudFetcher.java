@@ -1,5 +1,7 @@
 package com.example.andreas.iridiumflares;
 
+import android.util.Log;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class CloudFetcher {
+
     double longitude;
     double latitude;
 
@@ -51,14 +54,18 @@ public class CloudFetcher {
             for (int i = 0;wheterArray.length()-1>i;i++){
                 firstTime = wheterArray.getJSONObject(i);
                 endTime = wheterArray.getJSONObject(i+1);
+
                 LocalDateTime l1 = new LocalDateTime(firstTime.getString("validTime").split("Z")[0]);
                 LocalDateTime l2 = new LocalDateTime(endTime.getString("validTime").split("Z")[0]);
                 LocalDateTime l3 = new LocalDateTime(flareDate);
 
+                Log.i("First",l1.toString());
+                Log.i("Okdate",l3.toString());
 
+                if(l1.isBefore(l3)){
+                    Log.i("ok","good;");
+                }
 
-                String time1 = firstTime.getString("validTime");
-                String time2 = endTime.getString("validTime");
                 if(l1.isBefore(l3) && l2.isAfter(l3)){
 
                     Period p1 = new Period(l1, l3);
@@ -76,6 +83,7 @@ public class CloudFetcher {
                         cloudcover = endTime.getJSONArray("parameters").getJSONObject(7).getJSONArray("values").getInt(0);
 
                     }
+                    Log.i("Cover","amount:" +cloudcover);
                     if(cloudcover>4){
                         flareList.remove(f);
                     }
@@ -85,12 +93,6 @@ public class CloudFetcher {
         }
     }
 
-    public Boolean checkFlare(Flares f){
-        //TODO gör en jsonarry som går över timeseries
-        //
-        return true;
-
-    }
     private JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         String text = readStringFromUrl(url);
         return new JSONObject(text);
@@ -108,20 +110,6 @@ public class CloudFetcher {
             return stringBuilder.toString();
         } finally {
             inputStream.close();
-        }
-    }
-
-    public static void main(String[] args) {
-        //TODO ta emot listan som skickas istället
-        CloudFetcher c = new CloudFetcher(18,59);
-        try {
-            c.cloudCheck(new ArrayList<Flares>());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
     }
 

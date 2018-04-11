@@ -43,11 +43,11 @@ public class FlaresFetcher {
 
     public ArrayList fetchData(Context context) throws IOException {
         // Generate URL for fetching data:
-
+        //TODO chnage the substrings to be dynamic
         String latitudeString = String.valueOf(latitude);
-        latitudeString = latitudeString.substring(0, 6);
+        latitudeString = latitudeString.substring(0, 4);
         String longitudeString = String.valueOf(longitude);
-        longitudeString = longitudeString.substring(0, 6);
+        longitudeString = longitudeString.substring(0, 4);
 
         URL link = new URL("http://www.heavens-above.com/localhtml.aspx?lat=" + latitudeString + "&lng=" + longitudeString);
         File file = new File("localhtml.html");
