@@ -10,12 +10,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class CompassActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -57,8 +59,34 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         addStarToCompass(azimuth);
         rotateAltitudeIndicator(pitch);
 
+        // Get millis for countdown here:
+        long millis = 1000*60*60*12;
+        initializeCountDownTimer(millis);
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+    }
+
+    private void initializeCountDownTimer(long millis) {
+
+        final TextView countDownView = findViewById(R.id.countDownTimer);
+
+        new CountDownTimer(millis,1000) {
+
+            @Override
+            public void onTick(long millis) {
+                int seconds = (int) (millis / 1000) % 60 ;
+                int minutes = (int) ((millis / (1000*60)) % 60);
+                int hours   = (int) ((millis / (1000*60*60)) % 24);
+                String text = String.format("%02d hours, %02d minutes, %02d seconds",hours,minutes,seconds);
+                countDownView.setText(text);
+            }
+
+            @Override
+            public void onFinish() {
+                countDownView.setText("Flare happened");
+            }
+        }.start();
     }
 
     @Override
