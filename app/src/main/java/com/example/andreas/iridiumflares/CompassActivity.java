@@ -44,11 +44,11 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         Intent i = getIntent();
         float azimuth = (float) i.getIntExtra("Azimuth",0);
         float pitch = (float) i.getIntExtra("Pitch",0);
-        String time = i.getStringExtra("Time");
+        long time = (long) i.getIntExtra("Time",0);
 
         Log.i("R","azi" + azimuth);
         Log.i("R","pitch" +pitch);
-        Log.i("R",time);
+        Log.i("R","mili sec to flare"+time);
 
         // Find objects in view
         compassImage = findViewById(R.id.compass);
@@ -61,7 +61,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
         // Get millis for countdown here:
         long millis = 1000*60*60*12;
-        initializeCountDownTimer(millis);
+        initializeCountDownTimer(time);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -78,7 +78,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
                 int seconds = (int) (millis / 1000) % 60 ;
                 int minutes = (int) ((millis / (1000*60)) % 60);
                 int hours   = (int) ((millis / (1000*60*60)) % 24);
-                String text = String.format("%02d hours, %02d minutes, %02d seconds",hours,minutes,seconds);
+                int days = (int) ((millis / (1000*60*60*24)));
+                String text = String.format("%02d days, %02d hours, %02d minutes, %02d seconds",days,hours,minutes,seconds);
                 countDownView.setText(text);
             }
 

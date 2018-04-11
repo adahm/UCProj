@@ -21,9 +21,17 @@ import android.widget.ListView;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.joda.time.DateTimeZone;
+import org.joda.time.Hours;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
+import org.joda.time.format.DateTimeFormat;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
@@ -171,8 +179,28 @@ public class MainActivity extends Activity {
 
         intent.putExtra("Azimuth", flareList.get(index).getAzimuth() );
         intent.putExtra("Pitch",flareList.get(index).getAltitude());
-        intent.putExtra("Time",flareList.get(index).getDate().toString());
+        Log.i("date",flareList.get(index).getDate().toString());
+        String dateString = flareList.get(index).getDate().toString();
+        String delims = "[ ]+";
+        String[] parts = dateString.split(delims);
+        String parseDate = parts[1] + " "+ parts[2] + " " + parts[5]+ " "+ parts[3];
+        LocalDateTime time = DateTimeFormat.forPattern("MMM dd yyyy HH:mm:ss").parseLocalDateTime(parseDate);
+        //format Tue Apr 10 03:26:19 GMT+00:00 2018
+        DateTimeZone zone = DateTimeZone.forID("Europe/Madrid");
+        LocalDateTime currTime = new LocalDateTime(zone);
 
+        Period p = new Period(currTime, time, PeriodType.millis());
+
+
+        Log.i("curr d",currTime.toString());
+
+        Log.i("d",time.toString());
+
+        Log.i("d","mili:"+ p.getValue(0));
+
+        intent.putExtra("Time",p.getValue(0));
+
+        // Apr 11 2018 03:20:15
         startActivity(intent);
     }
 
