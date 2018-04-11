@@ -59,14 +59,17 @@ public class CloudFetcher {
                 LocalDateTime l2 = new LocalDateTime(endTime.getString("validTime").split("Z")[0]);
                 LocalDateTime l3 = new LocalDateTime(flareDate);
 
-                Log.i("First",l1.toString());
-                Log.i("Okdate",l3.toString());
 
-                if(l1.isBefore(l3)){
-                    Log.i("ok","good;");
-                }
+
 
                 if(l1.isBefore(l3) && l2.isAfter(l3)){
+
+                    Log.i("First",l1.toString());
+
+                    Log.i("CurrentDate",l3.toString());
+
+                    Log.i("End",l2.toString());
+
 
                     Period p1 = new Period(l1, l3);
                     Period p2 = new Period(l3, l2);
@@ -76,6 +79,7 @@ public class CloudFetcher {
 
                     int cloudcover;
                     if(hours1<hours2){
+
                         cloudcover = firstTime.getJSONArray("parameters").getJSONObject(7).getJSONArray("values").getInt(0);
 
                     }

@@ -46,8 +46,15 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compass);
         Intent i = getIntent();
-        String angle = i.getStringExtra("Angle");
-        Log.i("R",angle);
+        float azimuth = (float) i.getIntExtra("Azimuth",0);
+        float pitch = (float) i.getIntExtra("Pitch",0);
+        String time = i.getStringExtra("Time");
+
+        Log.i("R","azi" + azimuth);
+        Log.i("R","pitch" +pitch);
+        Log.i("R",time);
+
+
         compassImage = findViewById(R.id.compass); //TODO add watermark
         blackelineImage = findViewById(R.id.blackline);
         dottedlineImage = findViewById(R.id.dottedline);

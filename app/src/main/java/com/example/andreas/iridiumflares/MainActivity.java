@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
     // Declaring a Location Manager
     protected LocationManager mLocationManager;
     Context context = MainActivity.this;
+    final List<Flares> flareList = new ArrayList<Flares>();
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -40,6 +41,9 @@ public class MainActivity extends Activity {
         JodaTimeAndroid.init(this);
 
         setContentView(R.layout.activity_main);
+
+        final ListView FlareListView = findViewById(R.id.list);
+
 
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -59,7 +63,6 @@ public class MainActivity extends Activity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        final ListView FlareList = findViewById(R.id.list);
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -118,16 +121,19 @@ public class MainActivity extends Activity {
 
             @Override
             protected void onPostExecute(ArrayList<Flares> response) {
-                List<String> flareList = new ArrayList<String>();
+                int i = 1;
+                List<String> StringList = new ArrayList<String>();
                 for(Flares f : response){
-                    flareList.add(f.toString());
+                    flareList.add(f);
+                    StringList.add(i+ ". " + f.toString());
                     Log.i("Fetcher", "Entry: " + f.toString());
+                    i++;
                 }
-                String[] flareStrings = flareList.toArray(new String[flareList.size()]);
+                String[] flareStrings = StringList.toArray(new String[StringList.size()]);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1, flareStrings);
-                FlareList.setAdapter(adapter);
+                FlareListView.setAdapter(adapter);
                 Log.i("i", "Created menu item");
-                FlareList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                FlareListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
                 {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View v, int position,
@@ -159,9 +165,14 @@ public class MainActivity extends Activity {
 
     }
 
-    public void Switch(String angle){
+    public void Switch(String data){
         Intent intent = new Intent(this, CompassActivity.class);
-        intent.putExtra("Angle", angle );
+        int index = Integer.parseInt(data.substring(0,1))-1;
+
+        intent.putExtra("Azimuth", flareList.get(index).getAzimuth() );
+        intent.putExtra("Pitch",flareList.get(index).getAltitude());
+        intent.putExtra("Time",flareList.get(index).getDate().toString());
+
         startActivity(intent);
     }
 
