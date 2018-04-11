@@ -75,10 +75,10 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     }
 
     public void rotateAltitudeIndicator(){
-        float altitudeAngle = 20;
-        dottedlineImage.setRotationX(dottedlineImage.getX()/2);
-        dottedlineImage.setRotationY(dottedlineImage.getY()/2);
-        dottedlineImage.setRotation(altitudeAngle);
+        float altitudeAngle = 30f;
+     //   dottedlineImage.setRotationX(dottedlineImage.getX()/2);
+     //   dottedlineImage.setRotationY(dottedlineImage.getY()/2);
+        dottedlineImage.setRotation(-altitudeAngle);
     }
 
     public void addStarToCompass(){

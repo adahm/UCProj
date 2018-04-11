@@ -1,51 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".CompassActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    tools:context=".CompassActivity"
+    android:layout_gravity="center"
+    >
 
-    <ImageView
-        android:id="@+id/compass"
-        android:layout_width="322dp"
-        android:layout_height="320dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="19dp"
-        android:layout_marginStart="19dp"
-        android:layout_marginTop="9dp"
-        android:contentDescription="compass"
-        android:src="@drawable/compass_rose"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blackline" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:id="@+id/compassWrapper"
+        >
 
-    <ImageView
-        android:id="@+id/blackline"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_marginBottom="9dp"
-        android:layout_marginEnd="100dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="6dp"
-        android:src="@drawable/blackline"
-        app:layout_constraintBottom_toTopOf="@+id/compass"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/compass"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="compass"
+            android:src="@drawable/compass_rose"
+            />
+        <ImageView
+            android:id="@+id/compassline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="compassline"
+            android:src="@drawable/compassline"
+            />
 
-    <ImageView
-        android:id="@+id/dottedline"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_marginBottom="12dp"
-        android:layout_marginEnd="100dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="6dp"
-        android:src="@drawable/dottedline"
-        app:layout_constraintBottom_toTopOf="@+id/compass"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</android.support.constraint.ConstraintLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+
+        >
+
+        <ImageView
+            android:id="@+id/blackline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/blackline"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            />
+
+        <ImageView
+            android:id="@+id/dottedline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:scaleType="center"
+
+            android:src="@drawable/dottedline"
+            android:layout_gravity="center"
+            />
+
+    </RelativeLayout>
+</LinearLayout>
