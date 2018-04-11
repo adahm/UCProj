@@ -10,16 +10,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Debug;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-
-import junit.framework.Assert;
 
 public class CompassActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -39,8 +35,6 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
     private float pitch = 0f;
 
-    private int interval = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,11 +48,14 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         Log.i("R","pitch" +pitch);
         Log.i("R",time);
 
-
-        compassImage = findViewById(R.id.compass); //TODO add watermark
+        // Find objects in view
+        compassImage = findViewById(R.id.compass);
         blackelineImage = findViewById(R.id.blackline);
         dottedlineImage = findViewById(R.id.dottedline);
-        addStarToCompass();
+
+        // Place rotation and star indicators
+        addStarToCompass(azimuth);
+        rotateAltitudeIndicator(pitch);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -71,31 +68,23 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if (hasFocus) {
-            rotateAltitudeIndicator();
-
-        }
-
-
-    }
-
-    public void rotateAltitudeIndicator(){
-        float altitudeAngle = 30f;
-     //   dottedlineImage.setRotationX(dottedlineImage.getX()/2);
-     //   dottedlineImage.setRotationY(dottedlineImage.getY()/2);
+    public void rotateAltitudeIndicator(float altitudeAngle){
         dottedlineImage.setRotation(-altitudeAngle);
     }
 
-    public void addStarToCompass(){
+    public void addStarToCompass(float targetAzimuth){
         Drawable compassClone = compassImage.getDrawable();
         Bitmap compassBitmap = ((BitmapDrawable)compassClone).getBitmap();
 
+        // Correct azimuth to correspond to rotation angle
+        targetAzimuth = 90f - targetAzimuth;
+
+        // Fetch height and width used for placement
         int w = compassBitmap.getWidth();
         int h = compassBitmap.getHeight();
+
+        // Initialize drawing
         Bitmap result = Bitmap.createBitmap(w, h, compassBitmap.getConfig());
-        float targetAzimuth = 315f;
 
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(compassBitmap, 0, 0, null);
@@ -115,8 +104,10 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         Log.i("Drawing", "sin value: " + (Math.sin(Math.toRadians(targetAzimuth))) +
                 ", cos value: " + Math.cos(Math.toRadians(targetAzimuth)));
 
+        // Place text and replace compass image with new compass image
         canvas.drawText("*", (float)locationX, (float)locationY, paint);
         compassImage.setImageBitmap(result);
+
         Log.i("Drawing", "drawing done and drawing * at location x: " + String.valueOf(locationX) + ", y: " + String.valueOf(locationY));
         Log.i("Drawing", "Size of image: " + String.valueOf(w) + ", by " + String.valueOf(h));
     }
@@ -126,6 +117,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         super.onPause();
         sensorManager.unregisterListener(this);
     }
+    
     @Override
     public synchronized void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -136,29 +128,26 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
             mMagnetometerReading = sensorEvent.values;
         }
         if(mMagnetometerReading != null && mAccelerometerReading != null){
-            updateCompassRotation();
-
+            updateIndicators();
         }
 
     }
 
-    public void updateCompassRotation() {
+    public void updateIndicators() {
         sensorManager.getRotationMatrix(mRotationMatrix,I,
                 mAccelerometerReading, mMagnetometerReading);
         sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
         if(mAccelerometerReading[2]<0) //make sure that we can detect if the phone rotates over it´s x axis
             mOrientationAngles[1] = (float) (Math.PI - mOrientationAngles[1]);
+
+        // Compass:
         float degreeChange =  mOrientationAngles[0];
-
-
-
         degreeChange = (float) Math.toDegrees(degreeChange);
 
         if (degreeChange < 0.0f) {
             degreeChange += 360f;
         }
         degreeChange = Math.round(degreeChange);
- //       Log.i("i", "Azimuth " + degreeChange);
             RotateAnimation r = new RotateAnimation(degree,
                     -degreeChange,
                     Animation.RELATIVE_TO_SELF,
@@ -170,7 +159,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
             compassImage.startAnimation(r);
             degree = -degreeChange;
 
-        //change angle of the vertical line
+        // Pitch:
         float pitchChange = mOrientationAngles[1];
 
         pitchChange = (float) Math.toDegrees(pitchChange);
@@ -189,6 +178,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         pitch = pitchChange;
     }
 
+    // Must exist for compilation
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
