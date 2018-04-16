@@ -17,10 +17,19 @@
             </intent-filter>
         </activity>
         <activity android:name=".CompassActivity"></activity>
+        <receiver
+            android:name="com.example.andreas.iridiumflares.NotificationCreator"
+            android:enabled="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.NOTIFY" />
+            </intent-filter>
+        </receiver>
     </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.NOTIFY" />
 
 
 

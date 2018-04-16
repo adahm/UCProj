@@ -105,11 +105,13 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
                 Intent notIntent = new Intent(context, NotificationCreator.class);
 
+
                 notIntent.putExtra("notificationID",id);
                 notIntent.putExtra("notification",notification);
-                PendingIntent pIntent = PendingIntent.getBroadcast(context, id, i, PendingIntent.FLAG_CANCEL_CURRENT);
-                Log.i("set","pendingIntent");
-                long futureInMillis = System.currentTimeMillis() + 1000;
+                notIntent.setAction("NOTIFY");
+                PendingIntent pIntent = PendingIntent.getForegroundService(context, id, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                Log.i("set","pendingIntent: " + notIntent.getAction());
+                long futureInMillis = System.currentTimeMillis() + 5000;
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pIntent);
             }
@@ -270,16 +272,6 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
-    public class NotificationCreator extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i("alarm","sent notification");
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification notification = intent.getParcelableExtra("notification");
-            int notificationId = intent.getIntExtra("notificationID", 0);
-            notificationManager.notify(notificationId, notification);
-        }
 
-    }
 
 }
