@@ -67,7 +67,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
     }
-
+    //Create countdown timer for when the flare will appear
     private void initializeCountDownTimer(long millis) {
 
         final TextView countDownView = findViewById(R.id.countDownTimer);
@@ -147,7 +147,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         super.onPause();
         sensorManager.unregisterListener(this);
     }
-    
+
+    //get the data from the accelerometer and the magnetometer
     @Override
     public synchronized void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -163,6 +164,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+    //Chnage the oritentation of the line and the compass depending on the chnage of readings from the Sensors
     public void updateIndicators() {
         sensorManager.getRotationMatrix(mRotationMatrix,I,
                 mAccelerometerReading, mMagnetometerReading);
@@ -170,7 +172,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         if(mAccelerometerReading[2]<0) //make sure that we can detect if the phone rotates over it´s x axis
             mOrientationAngles[1] = (float) (Math.PI - mOrientationAngles[1]);
 
-        // Compass:
+        //convert the radinas to degrees
         float degreeChange =  mOrientationAngles[0];
         degreeChange = (float) Math.toDegrees(degreeChange);
 
@@ -178,6 +180,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
             degreeChange += 360f;
         }
         degreeChange = Math.round(degreeChange);
+
+        //rotate the compass
         RotateAnimation r = new RotateAnimation(degree,
                 -degreeChange,
                 Animation.RELATIVE_TO_SELF,
@@ -189,14 +193,17 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         compassImage.startAnimation(r);
         degree = -degreeChange;
 
-        // Pitch:
+        // Get the change in pitch
         float pitchChange = mOrientationAngles[1];
 
+        //convert from radians to degrees
         pitchChange = (float) Math.toDegrees(pitchChange);
         if (pitchChange < 0.0f) {
             pitchChange += 360f;
         }
         pitchChange = Math.round(pitchChange);
+
+        //rotate the line that indicates the pitch of the phone
         RotateAnimation lineRot = new RotateAnimation(pitch,
                 pitchChange,
                 Animation.RELATIVE_TO_SELF,
