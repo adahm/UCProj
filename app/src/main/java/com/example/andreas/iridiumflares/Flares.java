@@ -25,6 +25,8 @@ public class Flares {
         this.date = parseDate(date);
     }
 
+    // Lazy solution to add current year to dates, would not work if used around New Years Eve.
+    // Takes date in the string format provided from data source and returns date object.
     public Date parseDate(String dateString){
         SimpleDateFormat format = new SimpleDateFormat("yyyy MMM d, H:m:s");
         try {

@@ -41,6 +41,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compass);
+
+        // Get data for the flare
         Intent i = getIntent();
         float azimuth = (float) i.getIntExtra("Azimuth",0);
         float pitch = (float) i.getIntExtra("Pitch",0);
@@ -48,7 +50,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
         Log.i("R","azi" + azimuth);
         Log.i("R","pitch" +pitch);
-        Log.i("R","mili sec to flare"+time);
+        Log.i("R","milli sec to flare"+time);
 
         // Find objects in view
         compassImage = findViewById(R.id.compass);
@@ -59,8 +61,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         addStarToCompass(azimuth);
         rotateAltitudeIndicator(pitch);
 
-        // Get millis for countdown here:
-        long millis = 1000*60*60*12;
+        // Initialize countdown timer:
         initializeCountDownTimer(time);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -177,16 +178,16 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
             degreeChange += 360f;
         }
         degreeChange = Math.round(degreeChange);
-            RotateAnimation r = new RotateAnimation(degree,
-                    -degreeChange,
-                    Animation.RELATIVE_TO_SELF,
-                    0.5f,
-                    Animation.RELATIVE_TO_SELF,
-                    0.5f);
-            r.setDuration(230);
+        RotateAnimation r = new RotateAnimation(degree,
+                -degreeChange,
+                Animation.RELATIVE_TO_SELF,
+                0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f);
+        r.setDuration(230);
 
-            compassImage.startAnimation(r);
-            degree = -degreeChange;
+        compassImage.startAnimation(r);
+        degree = -degreeChange;
 
         // Pitch:
         float pitchChange = mOrientationAngles[1];

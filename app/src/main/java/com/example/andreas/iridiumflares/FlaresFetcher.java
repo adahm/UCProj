@@ -25,38 +25,36 @@ public class FlaresFetcher {
     }
 
     public ArrayList fetchData(Context context) throws IOException {
+        /* Code for opening connection to website disabled:
         // Generate URL for fetching data:
-        //TODO chnage the substrings to be dynamic
         String latitudeString = String.valueOf(latitude);
         latitudeString = latitudeString.substring(0, 4);
         String longitudeString = String.valueOf(longitude);
         longitudeString = longitudeString.substring(0, 4);
-
         URL link = new URL("http://www.heavens-above.com/localhtml.aspx?lat=" + latitudeString + "&lng=" + longitudeString);
-        File file = new File("localhtml.html");
         Log.i("Fetcher", "URL: " + link.toString());
 
+        BufferedReader in = new BufferedReader(new InputStreamReader(link.openStream(), Charset.forName("UTF-8"))); // Uncomment for internet fetch
+        */
 
+        // Fetch from local localhtml.html file stored in project rather than online:
+        File file = new File("localhtml.html");
         Log.i("Fetcher", "File trying to read from path: " + file.getAbsolutePath());
 
-
-        // Use local file to read from rather than fetch data online
-//      BufferedReader in = new BufferedReader(new InputStreamReader(link.openStream(), Charset.forName("UTF-8"))); // Uncomment for internet fetch
         BufferedReader in = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.localhtml)));
-        Log.i("Fetcher", "progress?");
-        String inputLine, azimuth, altitude, date, response;
+
+        // Scraping html file:
+        String inputLine, azimuth, altitude, date;
         int dateEnd, azimuthEnd, altitudeEnd;
-        response = "Response: \n";
         inputLine = in.readLine();
 
-
-        // Go fwd to table:
+        // Go forward to line containing the table:
         while (!inputLine.contains("flaredetails.aspx") && in.ready())
         {
             inputLine = in.readLine();
         }
 
-        // Iterate over line until empty
+        // Entire table on single line, we iterate over it by extracting data and removing extracted data
         while (inputLine.length() > 1) {
 
             // Trim data to date:
@@ -90,9 +88,7 @@ public class FlaresFetcher {
             // Trim to end of row
             inputLine = inputLine.substring(inputLine.indexOf("</tr>")+5, inputLine.length());
 
-            response += "Date: " + date + "; Azimuth: " + azimuth + "; Altitude: " + altitude + "\n";
-
-            // Adds flare to flareList
+            // Adds flare to flareList, data entered as Strings, parsing done in Flares class.
             flareList.add(new Flares(date, azimuth, altitude));
         }
         return flareList;
