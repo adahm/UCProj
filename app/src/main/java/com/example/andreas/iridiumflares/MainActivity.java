@@ -3,6 +3,8 @@ package com.example.andreas.iridiumflares;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+    //id for notification channel
+    public static String channelID;
 
     protected LocationManager mLocationManager;
     Context context = MainActivity.this;
@@ -48,6 +52,9 @@ public class MainActivity extends Activity {
         final ListView FlareListView = findViewById(R.id.list);
 
         Location currentLocation = getLocation();
+
+        //create notification channel
+        creatNotificationChannel();
 
         final double currentLatitude = currentLocation.getLatitude();
         final double currentLongitude = currentLocation.getLongitude();
@@ -110,6 +117,17 @@ public class MainActivity extends Activity {
                 });
             }
         }.execute();
+    }
+
+    private void creatNotificationChannel(){
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        channelID = "Flare_Id";
+        CharSequence channelName = "Flare_channel";
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel notificationChannel = new NotificationChannel(channelID, channelName, importance);
+
+        notificationManager.createNotificationChannel(notificationChannel);
     }
 
     // Method for retrieving the current location, will handle permissions and wait for a GPS location before returning
@@ -191,5 +209,7 @@ public class MainActivity extends Activity {
         //start the compass activity
         startActivity(intent);
     }
+
+
 
 }

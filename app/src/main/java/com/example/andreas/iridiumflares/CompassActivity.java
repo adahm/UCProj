@@ -1,5 +1,12 @@
 package com.example.andreas.iridiumflares;
 
+import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,12 +17,16 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.CountDownTimer;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +35,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private ImageView compassImage;
     private ImageView blackelineImage;
     private ImageView dottedlineImage;
+    private Button notifyButton;
     private SensorManager sensorManager;
     private float degree = 0f;
 
@@ -36,7 +48,9 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private final float[] mOrientationAngles = new float[3];
 
     private float pitch = 0f;
+    Context context = CompassActivity.this;
 
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +70,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         compassImage = findViewById(R.id.compass);
         blackelineImage = findViewById(R.id.blackline);
         dottedlineImage = findViewById(R.id.dottedline);
+        notifyButton = findViewById(R.id.button_notify);
 
         // Place rotation and star indicators
         addStarToCompass(azimuth);
@@ -65,6 +80,41 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         initializeCountDownTimer(time);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+
+
+
+
+
+        notifyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int id = (int) (azimuth + pitch);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, id, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, MainActivity.channelID)
+                        .setSmallIcon(R.drawable.notificationicon)
+                        .setContentTitle("Flare happens soon")
+                        .setContentText("Flare will appear in 5 min")
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setContentIntent(pendingIntent);
+
+
+                Notification notification = mBuilder.build();
+
+
+                Intent notIntent = new Intent(context, NotificationCreator.class);
+
+                notIntent.putExtra("notificationID",id);
+                notIntent.putExtra("notification",notification);
+                PendingIntent pIntent = PendingIntent.getBroadcast(context, id, i, PendingIntent.FLAG_CANCEL_CURRENT);
+                Log.i("set","pendingIntent");
+                long futureInMillis = System.currentTimeMillis() + 1000;
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pIntent);
+            }
+        });
+
 
     }
     //Create countdown timer for when the flare will appear
@@ -215,9 +265,21 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         pitch = pitchChange;
     }
 
-    // Must exist for compilation
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
+    public class NotificationCreator extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("alarm","sent notification");
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = intent.getParcelableExtra("notification");
+            int notificationId = intent.getIntExtra("notificationID", 0);
+            notificationManager.notify(notificationId, notification);
+        }
+
+    }
+
 }
