@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-//import android.support.v7.app.AppCompatActivity;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,24 +21,19 @@ import android.widget.ListView;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.joda.time.DateTimeZone;
-import org.joda.time.Hours;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.DateTimeFormat;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 
 public class MainActivity extends Activity {
 
-    // Declaring a Location Manager
     protected LocationManager mLocationManager;
     Context context = MainActivity.this;
+    //list for the Flares
     final List<Flares> flareList = new ArrayList<Flares>();
 
     @SuppressLint("StaticFieldLeak")
@@ -52,26 +46,18 @@ public class MainActivity extends Activity {
 
         final ListView FlareListView = findViewById(R.id.list);
 
-
-
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        //get permisions to use the phones location
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 1);
         //TODO fix so the app works after the firsst start
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.i("i", "NO GPS PERMISSION");
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
         }
 
+        //create a locationlistener to get location of the phone
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 return;
@@ -92,8 +78,10 @@ public class MainActivity extends Activity {
 
             }
         };
+        //get updates of the phones current position
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
+        //get the current location of the phone
         Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         while (currentLocation == null){
             Log.i("i", "No location found yet");
@@ -104,12 +92,13 @@ public class MainActivity extends Activity {
             }
             currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
+
         mLocationManager.removeUpdates(locationListener);
         final double currentLatitude = currentLocation.getLatitude();
         final double currentLongitude = currentLocation.getLongitude();
         Log.i("i", "Longitude: " + currentLongitude + " Latitude: " + currentLatitude);
 
-
+        //create object that will get the flares at the current location
         final FlaresFetcher flareFetcher = new FlaresFetcher(currentLongitude, currentLatitude);
 
         new AsyncTask<Void, Void, ArrayList<Flares>>() {
@@ -117,8 +106,11 @@ public class MainActivity extends Activity {
             protected ArrayList<Flares> doInBackground(Void... params) {
                 ArrayList<Flares> response = new ArrayList<Flares>();
                 try {
+                    //get the flares at the current postion
                     response  = flareFetcher.fetchData(getApplicationContext());
+                    //get the Forceast from SMHI at the current position
                     CloudFetcher cloudFetcher = new CloudFetcher(currentLongitude,currentLatitude);
+                    //remove flares from the list where the clouds will cover the sky
                     cloudFetcher.cloudCheck(response);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -131,37 +123,35 @@ public class MainActivity extends Activity {
             protected void onPostExecute(ArrayList<Flares> response) {
                 int i = 1;
                 List<String> StringList = new ArrayList<String>();
+                //create a string list of the flares and add
                 for(Flares f : response){
                     flareList.add(f);
                     StringList.add(i+ ". " + f.toString());
                     Log.i("Fetcher", "Entry: " + f.toString());
                     i++;
                 }
+
                 String[] flareStrings = StringList.toArray(new String[StringList.size()]);
+                //create an adapter to fill the listview with the flares
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1, flareStrings);
                 FlareListView.setAdapter(adapter);
                 Log.i("i", "Created menu item");
+
+                //set a click listener for the listview
                 FlareListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
                 {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View v, int position,
                                             long arg3)
                     {
+                        //get the value from the selected item
                         String value = (String)adapter.getItemAtPosition(position);
-                        // assuming string and if you want to get the value on click of list item
-                        // do what you intend to do on click of listview row
                         Log.i("i", "menu item selected: " + value);
+                        //switch activity when clicked
                         Switch(value);
-                /*
-                Intent intent = new Intent(this, VÅRAN-EGEN-KLASS.class);
-                ****KOORDINATER****
-                intent.putExtra(EXTRA_MESSAGE, message);
-                startActivity(intent);
-                 */
 
                     }
                 });
-                // Do whatever you want to do with the network response
             }
         }.execute();
 
@@ -173,34 +163,35 @@ public class MainActivity extends Activity {
 
     }
 
+    //method called when item in the listview is selected and will switch from the MainActivity to the compassActivity
     public void Switch(String data){
-        Intent intent = new Intent(this, CompassActivity.class);
-        int index = Integer.parseInt(data.substring(0,1))-1;
 
+        Intent intent = new Intent(this, CompassActivity.class);
+        //get the index of the item selected to get the data from the list
+        int index = Integer.parseInt(data.substring(0,1))-1;
+        //add the potch and Azimuth to the intent so the compass can use it
         intent.putExtra("Azimuth", flareList.get(index).getAzimuth() );
         intent.putExtra("Pitch",flareList.get(index).getAltitude());
+
         Log.i("date",flareList.get(index).getDate().toString());
+
+        //Parse the date for the flare and get the difference in millis from the current time for the countdown
         String dateString = flareList.get(index).getDate().toString();
         String delims = "[ ]+";
         String[] parts = dateString.split(delims);
         String parseDate = parts[1] + " "+ parts[2] + " " + parts[5]+ " "+ parts[3];
         LocalDateTime time = DateTimeFormat.forPattern("MMM dd yyyy HH:mm:ss").parseLocalDateTime(parseDate);
         //format Tue Apr 10 03:26:19 GMT+00:00 2018
-        DateTimeZone zone = DateTimeZone.forID("Europe/Madrid");
+
+        //set cest/cet timezone
+        DateTimeZone zone = DateTimeZone.forID("Europe/Stockholm");
         LocalDateTime currTime = new LocalDateTime(zone);
 
         Period p = new Period(currTime, time, PeriodType.millis());
-
-
-        Log.i("curr d",currTime.toString());
-
-        Log.i("d",time.toString());
-
-        Log.i("d","mili:"+ p.getValue(0));
-
+        //add the difference in millis to the intent
         intent.putExtra("Time",p.getValue(0));
 
-        // Apr 11 2018 03:20:15
+        //start the compass activity
         startActivity(intent);
     }
 
