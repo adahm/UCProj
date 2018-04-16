@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
@@ -46,54 +47,8 @@ public class MainActivity extends Activity {
 
         final ListView FlareListView = findViewById(R.id.list);
 
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location currentLocation = getLocation();
 
-        //get permisions to use the phones location
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                1);
-        //TODO fix so the app works after the firsst start
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("i", "NO GPS PERMISSION");
-        }
-
-        //create a locationlistener to get location of the phone
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                return;
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-        };
-        //get updates of the phones current position
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-
-        //get the current location of the phone
-        Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        while (currentLocation == null){
-            Log.i("i", "No location found yet");
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        }
-
-        mLocationManager.removeUpdates(locationListener);
         final double currentLatitude = currentLocation.getLatitude();
         final double currentLongitude = currentLocation.getLongitude();
         Log.i("i", "Longitude: " + currentLongitude + " Latitude: " + currentLatitude);
@@ -101,6 +56,7 @@ public class MainActivity extends Activity {
         //create object that will get the flares at the current location
         final FlaresFetcher flareFetcher = new FlaresFetcher(currentLongitude, currentLatitude);
 
+        //web connections are not allowed to be run in main thread:
         new AsyncTask<Void, Void, ArrayList<Flares>>() {
             @Override
             protected ArrayList<Flares> doInBackground(Void... params) {
@@ -154,13 +110,54 @@ public class MainActivity extends Activity {
                 });
             }
         }.execute();
+    }
 
+    // Method for retrieving the current location, will handle permissions and wait for a GPS location before returning
+    @NonNull
+    private Location getLocation() {
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        //get permissions to use the phones location
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
+        //TODO fix so the app works after the first start
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("i", "NO GPS PERMISSION");
+        }
 
+        //create a locationlistener to get location of the phone
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                return;
+            }
 
+            @Override
+            public void onProviderDisabled(String s) {}
 
+            @Override
+            public void onProviderEnabled(String s) {}
 
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {}
+        };
+        //get updates of the phones current position
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
+        //get the current location of the phone
+        Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        while (currentLocation == null){
+            Log.i("i", "No location found yet");
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+
+        mLocationManager.removeUpdates(locationListener);
+        return currentLocation;
     }
 
     //method called when item in the listview is selected and will switch from the MainActivity to the compassActivity
