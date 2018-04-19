@@ -3,8 +3,6 @@ package com.example.andreas.iridiumflares;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,14 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    //id for notification channel
-    public static String channelID;
-
     protected LocationManager mLocationManager;
     Context context = MainActivity.this;
     //list for the Flares
     final List<Flares> flareList = new ArrayList<Flares>();
 
+    //TODO FIX location premission on first startup.
     @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +45,11 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        final ListView FlareListView = findViewById(R.id.list);
+        final ListView FlareListView = (ListView) findViewById(R.id.list);
 
         Location currentLocation = getLocation();
 
         //create notification channel
-        creatNotificationChannel();
 
         final double currentLatitude = currentLocation.getLatitude();
         final double currentLongitude = currentLocation.getLongitude();
@@ -119,16 +114,7 @@ public class MainActivity extends Activity {
         }.execute();
     }
 
-    private void creatNotificationChannel(){
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        channelID = "Flare_Id";
-        CharSequence channelName = "Flare_channel";
-        int importance = NotificationManager.IMPORTANCE_LOW;
-        NotificationChannel notificationChannel = new NotificationChannel(channelID, channelName, importance);
 
-        notificationManager.createNotificationChannel(notificationChannel);
-    }
 
     // Method for retrieving the current location, will handle permissions and wait for a GPS location before returning
     @NonNull
@@ -195,6 +181,8 @@ public class MainActivity extends Activity {
         String delims = "[ ]+";
         String[] parts = dateString.split(delims);
         String parseDate = parts[1] + " "+ parts[2] + " " + parts[5]+ " "+ parts[3];
+        intent.putExtra("Date",parseDate);
+
         LocalDateTime time = DateTimeFormat.forPattern("MMM dd yyyy HH:mm:ss").parseLocalDateTime(parseDate);
         //format Tue Apr 10 03:26:19 GMT+00:00 2018
 

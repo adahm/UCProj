@@ -6,7 +6,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -18,8 +17,7 @@
         </activity>
         <activity android:name=".CompassActivity"></activity>
         <receiver
-            android:name="com.example.andreas.iridiumflares.NotificationCreator"
-            android:enabled="false" >
+            android:name="com.example.andreas.iridiumflares.NotificationCreator">
             <intent-filter>
                 <action android:name="android.intent.action.NOTIFY" />
             </intent-filter>

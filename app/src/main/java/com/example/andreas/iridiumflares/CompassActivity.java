@@ -19,6 +19,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +30,14 @@ import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
+import org.joda.time.format.DateTimeFormat;
 
 public class CompassActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -48,29 +57,32 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private final float[] mOrientationAngles = new float[3];
 
     private float pitch = 0f;
+    private String date;
     Context context = CompassActivity.this;
 
-    @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compass);
+        JodaTimeAndroid.init(this);
 
         // Get data for the flare
         Intent i = getIntent();
         float azimuth = (float) i.getIntExtra("Azimuth",0);
         float pitch = (float) i.getIntExtra("Pitch",0);
         long time = (long) i.getIntExtra("Time",0);
+        date = i.getStringExtra("Date");
+
 
         Log.i("R","azi" + azimuth);
         Log.i("R","pitch" +pitch);
         Log.i("R","milli sec to flare"+time);
 
         // Find objects in view
-        compassImage = findViewById(R.id.compass);
-        blackelineImage = findViewById(R.id.blackline);
-        dottedlineImage = findViewById(R.id.dottedline);
-        notifyButton = findViewById(R.id.button_notify);
+        compassImage = (ImageView) findViewById(R.id.compass);
+        blackelineImage = (ImageView) findViewById(R.id.blackline);
+        dottedlineImage = (ImageView) findViewById(R.id.dottedline);
+        notifyButton = (Button) findViewById(R.id.button_notify);
 
         // Place rotation and star indicators
         addStarToCompass(azimuth);
@@ -92,7 +104,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
                 int id = (int) (azimuth + pitch);
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, id, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, MainActivity.channelID)
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.notificationicon)
                         .setContentTitle("Flare happens soon")
                         .setContentText("Flare will appear in 5 min")
@@ -105,13 +117,25 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
 
                 Intent notIntent = new Intent(context, NotificationCreator.class);
 
+                LocalDateTime time = DateTimeFormat.forPattern("MMM dd yyyy HH:mm:ss").parseLocalDateTime(date);
+                //format Tue Apr 10 03:26:19 GMT+00:00 2018
+
+                //set cest/cet timezone
+                //get the time left to the flare
+                DateTimeZone zone = DateTimeZone.forID("Europe/Stockholm");
+                LocalDateTime currTime = new LocalDateTime(zone);
+                Period p = new Period(currTime, time, PeriodType.millis());
 
                 notIntent.putExtra("notificationID",id);
                 notIntent.putExtra("notification",notification);
                 notIntent.setAction("NOTIFY");
-                PendingIntent pIntent = PendingIntent.getForegroundService(context, id, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                PendingIntent pIntent = PendingIntent.getBroadcast(context, id, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
                 Log.i("set","pendingIntent: " + notIntent.getAction());
-                long futureInMillis = System.currentTimeMillis() + 5000;
+                //set the notifcation to be sent when
+                long Miliis = p.getValue(0);
+                //subtract 5 miniutes so the notifcation is recived before the flare aperas
+                Miliis = Miliis-1000*60*5;
+                long futureInMillis = SystemClock.elapsedRealtime() + Miliis;
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pIntent);
             }
@@ -122,7 +146,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     //Create countdown timer for when the flare will appear
     private void initializeCountDownTimer(long millis) {
 
-        final TextView countDownView = findViewById(R.id.countDownTimer);
+        final TextView countDownView = (TextView) findViewById(R.id.countDownTimer);
 
         new CountDownTimer(millis,1000) {
 
