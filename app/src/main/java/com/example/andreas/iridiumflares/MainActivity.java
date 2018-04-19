@@ -45,9 +45,14 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        final ListView FlareListView = (ListView) findViewById(R.id.list);
+        //requests permision;
+        getperm();
 
+
+    }
+    public void gotpermision(){
         Location currentLocation = getLocation();
+        final ListView FlareListView = (ListView) findViewById(R.id.list);
 
         //create notification channel
 
@@ -114,6 +119,12 @@ public class MainActivity extends Activity {
         }.execute();
     }
 
+    public void getperm() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
+    }
+
 
 
     // Method for retrieving the current location, will handle permissions and wait for a GPS location before returning
@@ -122,13 +133,7 @@ public class MainActivity extends Activity {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //get permissions to use the phones location
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                1);
-        //TODO fix so the app works after the first start
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("i", "NO GPS PERMISSION");
-        }
+
 
         //create a locationlistener to get location of the phone
         LocationListener locationListener = new LocationListener() {
@@ -163,6 +168,30 @@ public class MainActivity extends Activity {
         mLocationManager.removeUpdates(locationListener);
         return currentLocation;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    gotpermision();
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    getperm();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+    }
+
 
     //method called when item in the listview is selected and will switch from the MainActivity to the compassActivity
     public void Switch(String data){
