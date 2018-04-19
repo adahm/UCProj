@@ -138,6 +138,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
                 long futureInMillis = SystemClock.elapsedRealtime() + Miliis;
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pIntent);
+                notifyButton.setText("Notification set");
             }
         });
 
