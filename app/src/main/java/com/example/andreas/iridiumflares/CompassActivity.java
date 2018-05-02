@@ -135,7 +135,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
                 long Miliis = p.getValue(0);
                 //subtract 5 miniutes so the notifcation is recived before the flare aperas
                 Miliis = Miliis-1000*60*5;
-                long futureInMillis = SystemClock.elapsedRealtime() + Miliis;
+                long futureInMillis = SystemClock.elapsedRealtime() + 1000*10;
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pIntent);
                 notifyButton.setText("Notification set");

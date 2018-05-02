@@ -72,9 +72,9 @@ public class MainActivity extends Activity {
                     //get the flares at the current postion
                     response  = flareFetcher.fetchData(getApplicationContext());
                     //get the Forceast from SMHI at the current position
-                    CloudFetcher cloudFetcher = new CloudFetcher(currentLongitude,currentLatitude);
+                    //CloudFetcher cloudFetcher = new CloudFetcher(currentLongitude,currentLatitude);
                     //remove flares from the list where the clouds will cover the sky
-                    cloudFetcher.cloudCheck(response);
+                    //cloudFetcher.cloudCheck(response);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
